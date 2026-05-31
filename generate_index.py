@@ -7,6 +7,7 @@
 import os
 import re
 from pathlib import Path
+from urllib.parse import quote
 
 
 def get_algorithm_files(leetcode_dir):
@@ -104,9 +105,13 @@ def generate_readme_content(algorithm_files, document_files, leetcode_dir, doc_d
             if match:
                 number = match.group(1)
                 title = match.group(2).strip()
-                content += f"| {number} | {title} | [查看代码](leetcode/{filename}) |\n"
+                # 对文件名进行URL编码以兼容各种Markdown渲染器
+                encoded_filename = quote(filename, safe='-.')
+                content += f"| {number} | {title} | [查看代码](leetcode/{encoded_filename}) |\n"
             else:
-                content += f"| - | {name_without_ext} | [查看代码](leetcode/{filename}) |\n"
+                # 对文件名进行URL编码以兼容各种Markdown渲染器
+                encoded_filename = quote(filename, safe='-.')
+                content += f"| - | {name_without_ext} | [查看代码](leetcode/{encoded_filename}) |\n"
         
         content += f"\n**算法题总计**: {len(algorithm_files)} 道\n"
     else:
@@ -135,7 +140,9 @@ def generate_readme_content(algorithm_files, document_files, leetcode_dir, doc_d
             for doc in categories[category]:
                 # 计算相对路径（从项目根目录开始）
                 link_path = f"doc/{doc['path']}".replace('\\', '/')
-                content += f"| {doc['title']} | [查看文档]({link_path}) |\n"
+                # 对路径中的非ASCII字符和空格进行URL编码
+                encoded_link_path = quote(link_path, safe='/:.-')
+                content += f"| {doc['title']} | [查看文档]({encoded_link_path}) |\n"
             
             content += "\n"
         
